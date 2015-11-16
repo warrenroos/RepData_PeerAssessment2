@@ -7,18 +7,437 @@ output:
     keep_md: true
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r, echo=TRUE}
+# Initial Notes 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Assignment
+# 
+#   The basic goal of this assignment is to explore the NOAA Storm Database and 
+#   answer some basic questions about severe weather events. 
 
-```{r}
-summary(cars)
+#   You must use the database to answer the questions below and
+#   show the code for your entire analysis. 
+
+#   Your analysis can consist of tables, figures, or other summaries. 
+
+#   You may use any R package you want to support your analysis.
+# 
+# Questions
+# 
+#   Your data analysis must address the following questions:
+# 
+#   1.Across the United States, which types of events (as indicated in the EVTYPE variable) 
+#   are most harmful with respect to population health?
+# 
+# 
+#   2.Across the United States, which types of events have the greatest 
+#   economic consequences?
+# 
+# 
+# Consider writing your report as if it were to be read by a government or 
+# municipal manager who might be responsible for preparing for severe weather 
+# events and will need to prioritize resources for different types of events. 
+# However, there is no need to make any specific recommendations in your report.
+
+# Document Layout
+
+#   -Language: Your document should be written in English.
+#   -Title: Your document should have a title that briefly summarizes your data analysis
+#   -Synopsis: Immediately after the title, there should be a synopsis which describes 
+#     and summarizes your analysis in at most 10 complete sentences.
+#   -There should be a section titled Data Processing which describes (in words and code) 
+#     how the data were loaded into R and processed for analysis. 
+#     In particular, your analysis must start from the raw CSV file containing the data. 
+#     You cannot do any preprocessing outside the document. 
+#     If preprocessing is time-consuming you may consider using the cache = TRUE option 
+#     for certain code chunks.
+#   -There should be a section titled Results in which your results are presented.
+#   -You may have other sections in your analysis, but 
+#     Data Processing and Results are required.
+#   -The analysis document must have at least one figure containing a plot.
+#   -Your analyis must have no more than three figures. 
+#     Figures may have multiple plots in them (i.e. panel plots), but 
+#     there cannot be more than three figures total.
+#   -You must show all your code for the work in your analysis document. 
+#     This may make the document a bit verbose, but that is okay. 
+#     In general, you should ensure that echo = TRUE for every code chunk 
+#     (this is the default setting in knitr).
+
+
 ```
 
-You can also embed plots, for example:
+# Title:  Assessment of NOAA Storm Data and its Impact on Population Health and Economic Consequences 
 
-```{r, echo=FALSE}
-plot(cars)
+## Synopsis:  
+
+In this analysis, I look at NOAA Storm Data from 1950 to 2011.  I explore the impact of storms and severe weather and assess their impact on both the health of individuals in the population at large in addition to their impact on the economies of the areas those storms occurred.  Primarily I looked at 2 measures {property damage, crop damage} to assess economic impact and 2 measures {fatalities, injuries} to assess health impact.  An interesting outcome is that the answer varies based on which measure you choose.  Also to note, I interpreted "figure" as being a "plot", else I would have commented out more of my Exploratory Data Analysis.  The plots are at the end of the document in the results section.  
+
+## Data Processing:  
+
+Storm Data is obtained, per the Assignment, from the course website <a href='https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2'>here</a>, however per the instructors, the data originated from the NOAA.  
+
+Additional documenation related to this data is also provided, both related to its <a href='https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf'>dataset preparation</a> and a <a href='https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf'>FAQ</a>.  
+
+Next, I read in the dataset, and do some exploratory data analysis on the data set. Note, as the Assignment required no more than 3 Plots, the Exploratory Plots are either commented out or removed (with some left here as representative of some of the plots / Exploratory Data Analysis done).    
+
+After reading in the data, the PROPDMGEXP was used to translate the PROPDMG into Actual $ with the result stored in PROPDMGACT.  Similarly, the CROPDMGEXP was used to translate the CROPDMG into Actual $ with the result stored in CROPDMGACT.  These two computed variables, PROPDMGACT and CROPDMGACT, in addition to the two additional original variables, FATALITIES and INJURIES, are used here for analysis.  
+
+Since the Assignment wants to know the the impact of Storms, both in terms of economic impact and personal health, I use the two computed variables, PROPDMGACT and CROPDMGACT, as a proxy to the Economic Damage.  Likewise, I use the two additional original variables, FATALITIES and INJURIES, as a proxy to the impact on Personal Health.  
+
+Next, the Assignment requested the impact to be determined by EVTYPE, and as such, I summarize the weather data into an aggregate dataset where summary statistics{sum, mean, sd, median, min, max} were computed for each variable {PROPDMGACT, CROPDMGACT, FATALITIES, INJURIES}.  
+
+The Data Preprocessing code is as follows:  
+
+```{r, echo=TRUE}
+
+# read in data from file 
+weatherData.orig <- read.table(
+    file = "..\\..\\Data\\repdata_data_StormData.csv.bz2", 
+    header = TRUE, sep = ",", na.strings = "NA", nrows = 250000
+  )
+    #colClasses = c("numeric", "factor", "factor")
+
+# basc summary statistics 
+head(weatherData.orig)
+summary(weatherData.orig)
+dim(weatherData.orig)
+
+# focus on impact to population and economy - identify the variables and provide basic statistcs 
+quantile(weatherData.orig$FATALITIES)
+quantile(weatherData.orig$INJURIES)
+quantile(weatherData.orig$PROPDMG)
+quantile(weatherData.orig$CROPDMG)
+
+unique(weatherData.orig$EVTYPE)
+unique(weatherData.orig$PROPDMGEXP)
+unique(weatherData.orig$CROPDMGEXP)
+# 
+# hist(
+#   weatherData.orig$FATALITIES, col = "red", 
+#      main = "Fatalities Per Storm Event",
+#      xlab = "Fatalities (#)",
+#      ylab = "Frequency"
+# )
+# hist(
+#   weatherData.orig$INJURIES, col = "red", 
+#      main = "Injuries Per Storm Event",
+#      xlab = "Injuries (#)",
+#      ylab = "Frequency"
+# )
+# hist(
+#   weatherData.orig$PROPDMG, col = "red", 
+#      main = "Property Damage Per Storm Event",
+#      xlab = "Property Damage ($)",
+#      ylab = "Frequency"
+# )
+# hist(
+#   weatherData.orig$CROPDMG, col = "red", 
+#      main = "Crop Damage Per Storm Event",
+#      xlab = "Crop Damage ($)",
+#      ylab = "Frequency"
+# )
+# 
+# # plot4 - here placed Row 1, Column 2 
+# plot(
+#   x = weatherData.orig$BGN_DATE, 
+#   y = weatherData.orig$FATALITIES, 
+#   type = "l",
+#   main ="Fatalities Per Storm Event Over Time", 
+#   xlab = "Day", 
+#   ylab = "Fatalities (#)"
+# )
+# 
+# # plot4 - here placed Row 1, Column 2 
+# plot(
+#   x = weatherData.orig$BGN_DATE, 
+#   y = weatherData.orig$INJURIES, 
+#   type = "l",
+#   main ="Injuries Per Storm Event Over Time", 
+#   xlab = "Day", 
+#   ylab = "Injuries (#)"
+# )
+# 
+# 
+# # plot4 - here placed Row 1, Column 2 
+# plot(
+#   x = weatherData.orig$BGN_DATE, 
+#   y = weatherData.orig$PROPDMG, 
+#   type = "l",
+#   main ="Property Damage Per Storm Event Over Time", 
+#   xlab = "Day", 
+#   ylab = "Property Damage ($)"
+# )
+# 
+# 
+# 
+# # plot4 - here placed Row 1, Column 2 
+# plot(
+#   x = weatherData.orig$BGN_DATE, 
+#   y = weatherData.orig$CROPDMG, 
+#   type = "l",
+#   main ="Crop Damage Per Storm Event Over Time", 
+#   xlab = "Day", 
+#   ylab = "Crop Damage ($)"
+# )
+
+library(dplyr)
+# 
+# weatherData.orig <- cbind(weatherData.orig, PROPDMGACT = weatherData.orig$PROPDMG * if(weatherData.orig$PROPDMGEXP == "B") {1000 * 1000 * 1000} else if(weatherData.orig$PROPDMGEXP == "M") {1000 * 1000} else if(weatherData.orig$PROPDMGEXP == "K") {1000} else {1})
+
+
+# filter for "B" and get subset 
+weatherData.PROP.B <- weatherData.orig %>% 
+  select(everything()) %>% 
+  filter(PROPDMGEXP %in% c("B")) 
+  
+# filter for "M" and get subset 
+weatherData.PROP.M <- weatherData.orig %>% 
+  select(everything()) %>% 
+  filter(PROPDMGEXP %in% c("M")) 
+  
+# filter for "M" and get subset 
+weatherData.PROP.K <- weatherData.orig %>% 
+  select(everything()) %>% 
+  filter(PROPDMGEXP %in% c("K")) 
+  
+# filter for "M" and get subset 
+weatherData.PROP.N <- weatherData.orig %>% 
+  select(everything()) %>% 
+  filter(!(PROPDMGEXP %in% c("B", "M", "K"))) 
+  
+# add Property Damage in Actual $ to the respective datasets 
+weatherData.PROP.B <- cbind(weatherData.PROP.B, PROPDMGACT = weatherData.PROP.B$PROPDMG * (1000 * 1000 * 1000))
+weatherData.PROP.M <- cbind(weatherData.PROP.M, PROPDMGACT = weatherData.PROP.M$PROPDMG * (1000 * 1000))
+weatherData.PROP.K <- cbind(weatherData.PROP.K, PROPDMGACT = weatherData.PROP.K$PROPDMG * (1000))
+weatherData.PROP.N <- cbind(weatherData.PROP.N, PROPDMGACT = weatherData.PROP.N$PROPDMG * (1))
+
+# resssemble dataset 
+weatherData.INTERIM <- rbind(weatherData.PROP.B, weatherData.PROP.M, weatherData.PROP.K, weatherData.PROP.N) 
+
+# filter for "B" and get subset 
+weatherData.CROP.B <- weatherData.INTERIM %>% 
+  select(everything()) %>% 
+  filter(CROPDMGEXP %in% c("B")) 
+  
+# filter for "M" and get subset 
+weatherData.CROP.M <- weatherData.INTERIM %>% 
+  select(everything()) %>% 
+  filter(CROPDMGEXP %in% c("M")) 
+  
+# filter for "M" and get subset 
+weatherData.CROP.K <- weatherData.INTERIM %>% 
+  select(everything()) %>% 
+  filter(CROPDMGEXP %in% c("K")) 
+  
+# filter for "M" and get subset 
+weatherData.CROP.N <- weatherData.INTERIM %>% 
+  select(everything()) %>% 
+  filter(!(CROPDMGEXP %in% c("B", "M", "K"))) 
+
+# add CROP Damage in Actual $ to the respective datasets 
+weatherData.CROP.B <- cbind(weatherData.CROP.B, CROPDMGACT = weatherData.CROP.B$CROPDMG * (1000 * 1000 * 1000))
+weatherData.CROP.M <- cbind(weatherData.CROP.M, CROPDMGACT = weatherData.CROP.M$CROPDMG * (1000 * 1000))
+weatherData.CROP.K <- cbind(weatherData.CROP.K, CROPDMGACT = weatherData.CROP.K$CROPDMG * (1000))
+weatherData.CROP.N <- cbind(weatherData.CROP.N, CROPDMGACT = weatherData.CROP.N$CROPDMG * (1))
+
+# resssemble dataset 
+weatherData.ALL <- rbind(weatherData.CROP.B, weatherData.CROP.M, weatherData.CROP.K, weatherData.CROP.N) 
+
+# group by EVTYPE 
+weatherData.EVTYPE <- weatherData.ALL %>% 
+  group_by(EVTYPE) %>% 
+  summarize(
+            sumPROPDMGACT = sum(PROPDMGACT, na.rm = TRUE), 
+            meanPROPDMGACT = mean(PROPDMGACT, na.rm = TRUE), 
+            sdPROPDMGACT = sd(PROPDMGACT, na.rm = TRUE), 
+            medianPROPDMGACT = median(PROPDMGACT, na.rm = TRUE), 
+            minPROPDMGACT = min(PROPDMGACT, na.rm = TRUE), 
+            maxPROPDMGACT = max(PROPDMGACT, na.rm = TRUE),
+            
+            sumCROPDMGACT = sum(CROPDMGACT, na.rm = TRUE), 
+            meanCROPDMGACT = mean(CROPDMGACT, na.rm = TRUE), 
+            sdCROPDMGACT = sd(CROPDMGACT, na.rm = TRUE), 
+            medianCROPDMGACT = median(CROPDMGACT, na.rm = TRUE), 
+            minCROPDMGACT = min(CROPDMGACT, na.rm = TRUE), 
+            maxCROPDMGACT = max(CROPDMGACT, na.rm = TRUE), 
+
+            sumFATALITIES = sum(FATALITIES, na.rm = TRUE), 
+            meanFATALITIES = mean(FATALITIES, na.rm = TRUE), 
+            sdFATALITIES = sd(FATALITIES, na.rm = TRUE), 
+            medianFATALITIES = median(FATALITIES, na.rm = TRUE), 
+            minFATALITIES = min(FATALITIES, na.rm = TRUE), 
+            maxFATALITIES = max(FATALITIES, na.rm = TRUE), 
+
+            sumINJURIES = sum(INJURIES, na.rm = TRUE), 
+            meanINJURIES = mean(INJURIES, na.rm = TRUE), 
+            sdINJURIES = sd(INJURIES, na.rm = TRUE), 
+            medianINJURIES = median(INJURIES, na.rm = TRUE), 
+            minINJURIES = min(INJURIES, na.rm = TRUE), 
+            maxINJURIES = max(INJURIES, na.rm = TRUE) 
+            
+            )
+
+# explore results  
+head(weatherData.EVTYPE)
+summary(weatherData.EVTYPE)
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Results:  
+
+Above, I did a tremendous amount of preprocessing as already documented.  Here, the results are presented.  Also to note, I interpreted "figure" as being a "plot", else I would have commented out more of my Exploratory Data Analysis.  
+
+First, I look at the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  
+
+...
+
+```{r, echo=TRUE}
+## 3 figures - can use multi-panel plots 
+
+# sort by sumPROPDMGACT 
+weatherData.EVTYPE.BySumPROPDMGACT <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumPROPDMGACT) %>% 
+    arrange(desc(sumPROPDMGACT)) 
+head(weatherData.EVTYPE.BySumPROPDMGACT)
+
+# sort by sumCROPDMGACT 
+weatherData.EVTYPE.BySumCROPDMGACT <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumCROPDMGACT) %>% 
+    arrange(desc(sumCROPDMGACT)) 
+head(weatherData.EVTYPE.BySumCROPDMGACT)
+
+# sort by sumFATALITIES 
+weatherData.EVTYPE.BySumFATALITIES <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumFATALITIES) %>% 
+    arrange(desc(sumFATALITIES)) 
+head(weatherData.EVTYPE.BySumFATALITIES)
+
+# sort by sumINJURIES 
+weatherData.EVTYPE.BySumINJURIES <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumINJURIES) %>% 
+    arrange(desc(sumINJURIES)) 
+head(weatherData.EVTYPE.BySumINJURIES)
+
+
+```
+
+From the above, in terms of Property Damage, the biggest impact storm types (in descending order) are:  Tornado, Winter Storm, and River Flood.  Similarly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  River Flood, Ice Storm, and Flood.  Further, in terms of Fatalities, the biggest impact storm types (in descending order) are:  Tornado, Heat, and Thunderstorm Wind.  Lastly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  Tornado, Thunderstorm Wind, Ice Storm.  As mentioned earlier, the answer to what is the most harmful to ecoomic health or public health depends on which measure you choose.   
+
+Next, looking at the data graphically the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  
+
+
+```{r, echo=TRUE}
+## 3 figures - can use multi-panel plots 
+
+# sort by sumPROPDMGACT 
+weatherData.EVTYPE.BySumPROPDMGACT <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumPROPDMGACT) %>% 
+    arrange(desc(sumPROPDMGACT)) 
+head(weatherData.EVTYPE.BySumPROPDMGACT)
+
+# sort by sumCROPDMGACT 
+weatherData.EVTYPE.BySumCROPDMGACT <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumCROPDMGACT) %>% 
+    arrange(desc(sumCROPDMGACT)) 
+head(weatherData.EVTYPE.BySumCROPDMGACT)
+
+# sort by sumFATALITIES 
+weatherData.EVTYPE.BySumFATALITIES <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumFATALITIES) %>% 
+    arrange(desc(sumFATALITIES)) 
+head(weatherData.EVTYPE.BySumFATALITIES)
+
+# sort by sumINJURIES 
+weatherData.EVTYPE.BySumINJURIES <- weatherData.EVTYPE %>%
+    select(EVTYPE, sumINJURIES) %>% 
+    arrange(desc(sumINJURIES)) 
+head(weatherData.EVTYPE.BySumINJURIES)
+
+#par(mfrow = c(2,2))
+par(mfcol = c(2,2), mar = c(4,4,2,1))
+
+# plot4 - here placed Row 1, Column 2 
+# barplot(head(weatherData.EVTYPE.BySumPROPDMGACT$sumPROPDMGACT))
+# barplot(head(weatherData.EVTYPE.BySumPROPDMGACT))
+# 
+# require(ggplot2)
+# # plot it 
+# ggplot(weatherData.EVTYPE.BySumPROPDMGACT)
+# ggplot(weatherData.EVTYPE.BySumPROPDMGACT, geom_bar(position="dodge") 
+# 
+# qplot(
+#     x = EVTYPE, 
+#     y = sumPROPDMGACT, 
+#     data = weatherData.EVTYPE.BySumPROPDMGACT, 
+#     geom = "bar"
+#     ) 
+# 
+
+
+#   , 
+#   main = "Weather Data - Property Damage by Storm Type", 
+#   xlab = "Storm Type", 
+#   ylab = "Property Damage ($)"
+# )
+#  x = head(weatherData.EVTYPE.BySumPROPDMGACT$EVTYPE, 2), 
+#  y =  head(weatherData.EVTYPE.BySumPROPDMGACT$sumPROPDMGACT, 2), 
+
+
+# plot4 - here placed Row 1, Column 2 
+plot(
+  x = head(weatherData.EVTYPE.BySumPROPDMGACT$EVTYPE), 
+  y =  head(weatherData.EVTYPE.BySumPROPDMGACT$sumPROPDMGACT), 
+  type = "c",
+   main = "Weather Data - Property Damage by Storm Type", 
+   xlab = "Storm Type", 
+   ylab = "Property Damage ($)"
+)
+
+# plot4 - here placed Row 1, Column 2 
+plot(
+  x = head(weatherData.EVTYPE.BySumCROPDMGACT$EVTYPE), 
+  y =  head(weatherData.EVTYPE.BySumCROPDMGACT$sumCROPDMGACT), 
+  type = "c",
+   main = "Weather Data - Crop Damage by Storm Type", 
+   xlab = "Storm Type", 
+   ylab = "Crop Damage ($)"
+)
+# plot4 - here placed Row 1, Column 2 
+plot(
+  x = head(weatherData.EVTYPE.BySumFATALITIES$EVTYPE), 
+  y =  head(weatherData.EVTYPE.BySumFATALITIES$sumFATALITIES), 
+  type = "c",
+   main = "Weather Data - Fatalities by Storm Type", 
+   xlab = "Storm Type", 
+   ylab = "Fatalities (#)"
+)
+# plot4 - here placed Row 1, Column 2 
+plot(
+  x = head(weatherData.EVTYPE.BySumINJURIES$EVTYPE,3), 
+  y =  head(weatherData.EVTYPE.BySumINJURIES$sumINJURIES, 3), 
+  type = "c",
+   main = "Weather Data - Injuries by Storm Type", 
+   xlab = "Storm Type", 
+   ylab = "Injuries (#)"
+)
+
+# zweatherData.EVTYPE.BySumINJURIES.FIL <- cbind(EVTYPE = head(as.character(weatherData.EVTYPE.BySumINJURIES$EVTYPE),3), sumINJURIES = head(weatherData.EVTYPE.BySumINJURIES$sumINJURIES,3)
+# )
+# zweatherData.EVTYPE.BySumINJURIES.FIL
+# plot(
+#   x = head(zweatherData.EVTYPE.BySumINJURIES.FIL["EVTYPE"],3), 
+#   y =  head(zweatherData.EVTYPE.BySumINJURIES.FIL["sumINJURIES"], 3), 
+#   type = "c",
+#    main = "Weather Data - Injuries by Storm Type", 
+#    xlab = "Storm Type", 
+#    ylab = "Injuries (#)"
+# )
+
+
+```
+
+Above, we look graphically at the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  Again, in terms of Property Damage, the biggest impact storm types (in descending order) are:  Tornado, Winter Storm, and River Flood.  Similarly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  River Flood, Ice Storm, and Flood.  Further, in terms of Fatalities, the biggest impact storm types (in descending order) are:  Tornado, Heat, and Thunderstorm Wind.  Lastly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  Tornado, Thunderstorm Wind, Ice Storm.  As mentioned earlier, the answer to what is the most harmful to ecoomic health or public health depends on which measure you choose.   
+
+
+In summary, I looked at the NOAA Storm Data from 1950 to 2011.  I explored the impact of storms and severe weather and assessed their impact on both the health of individuals in the population at large in addition to their impact on the economies of the areas those storms occurred.  Primarily I looked at 2 measures {property damage, crop damage} to assess economic impact and 2 measures {fatalities, injuries} to assess health impact.  An interesting outcome is that the answer varies based on which measure you choose.   
