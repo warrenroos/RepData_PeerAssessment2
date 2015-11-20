@@ -1,13 +1,10 @@
 ---
-title: "Data Science - Reproducible Research - Peer Assessment 2"
-author: "WR"
-date: "November 15, 2015"
 output: 
   html_document:
     keep_md: true
 ---
 
-```{r, echo=TRUE}
+```{r, echo=FALSE}
 # Initial Notes 
 
 # Assignment
@@ -69,8 +66,8 @@ output:
 # Title:  Assessment of NOAA Storm Data and its Impact on Population Health and Economic Consequences 
 
 ## Synopsis:  
-
-In this analysis, I look at NOAA Storm Data from 1950 to 2011.  I explore the impact of storms and severe weather and assess their impact on both the health of individuals in the population at large in addition to their impact on the economies of the areas those storms occurred.  Primarily I looked at 2 measures {property damage, crop damage} to assess economic impact and 2 measures {fatalities, injuries} to assess health impact.  An interesting outcome is that the answer varies based on which measure you choose.  Also to note, I interpreted "figure" as being a "plot", else I would have commented out more of my Exploratory Data Analysis.  The plots are at the end of the document in the results section.  
+ 
+In this analysis, I look at NOAA Storm Data from 1950 to 2011.  I explore the impact of storms and severe weather and assess their impact on both the health of individuals in the population at large in addition to their impact on the economies of the areas those storms occurred.  Primarily I looked at 2 measures {property damage, crop damage} to assess economic impact and 2 measures {fatalities, injuries} to assess health impact.  An interesting outcome is that the answer varies based on which measure you choose.  For example, the top Event is Flood for Property Damage, Drought for Crop Damage, Tornado for Fatalities, and Tornado for Injuries.  Even though 2 of the events line up as a top measure, the 2nd most impactful event for each measure do not line up for Fatalities and Injuries.  Also to note, I interpreted "figure" as being a "plot", else I would have commented out more of my Exploratory Data Analysis.  The plots are at the end of the document in the results section.  
 
 ## Data Processing:  
 
@@ -82,9 +79,11 @@ Next, I read in the dataset, and do some exploratory data analysis on the data s
 
 After reading in the data, the PROPDMGEXP was used to translate the PROPDMG into Actual $ with the result stored in PROPDMGACT.  Similarly, the CROPDMGEXP was used to translate the CROPDMG into Actual $ with the result stored in CROPDMGACT.  These two computed variables, PROPDMGACT and CROPDMGACT, in addition to the two additional original variables, FATALITIES and INJURIES, are used here for analysis.  
 
-Since the Assignment wants to know the the impact of Storms, both in terms of economic impact and personal health, I use the two computed variables, PROPDMGACT and CROPDMGACT, as a proxy to the Economic Damage.  Likewise, I use the two additional original variables, FATALITIES and INJURIES, as a proxy to the impact on Personal Health.  
+Since the Assignment wants to know the the impact of Storms, both in terms of economic impact and personal health, I use the two computed variables, PROPDMGACT and CROPDMGACT, as a proxy to the Economic Damage Impact.  Likewise, I use the two additional original variables, FATALITIES and INJURIES, as a proxy to the Personal Health Impact.  
 
 Next, the Assignment requested the impact to be determined by EVTYPE, and as such, I summarize the weather data into an aggregate dataset where summary statistics{sum, mean, sd, median, min, max} were computed for each variable {PROPDMGACT, CROPDMGACT, FATALITIES, INJURIES}.  
+
+Please note, some of the preprocessing, e.g. the "head(weatherData.orig)" and the "unique(weatherData.orig$EVTYPE)", were commented out to to the sheer # of pages they added to the printout.  Since both of these were done on the raw dataset to which everyone had access, they were determined the best options to minimize the # of pages in the writeup (when originally completed, I had over 40 pp, with 10pp due just to the unique call).  
 
 The Data Preprocessing code is as follows:  
 
@@ -93,12 +92,12 @@ The Data Preprocessing code is as follows:
 # read in data from file 
 weatherData.orig <- read.table(
     file = "..\\..\\Data\\repdata_data_StormData.csv.bz2", 
-    header = TRUE, sep = ",", na.strings = "NA", nrows = 250000
+    header = TRUE, sep = ",", na.strings = "NA", nrows = 2500000 # 250000
   )
     #colClasses = c("numeric", "factor", "factor")
 
 # basc summary statistics 
-head(weatherData.orig)
+#head(weatherData.orig)
 summary(weatherData.orig)
 dim(weatherData.orig)
 
@@ -108,82 +107,11 @@ quantile(weatherData.orig$INJURIES)
 quantile(weatherData.orig$PROPDMG)
 quantile(weatherData.orig$CROPDMG)
 
-unique(weatherData.orig$EVTYPE)
+# unique(weatherData.orig$EVTYPE)
 unique(weatherData.orig$PROPDMGEXP)
 unique(weatherData.orig$CROPDMGEXP)
-# 
-# hist(
-#   weatherData.orig$FATALITIES, col = "red", 
-#      main = "Fatalities Per Storm Event",
-#      xlab = "Fatalities (#)",
-#      ylab = "Frequency"
-# )
-# hist(
-#   weatherData.orig$INJURIES, col = "red", 
-#      main = "Injuries Per Storm Event",
-#      xlab = "Injuries (#)",
-#      ylab = "Frequency"
-# )
-# hist(
-#   weatherData.orig$PROPDMG, col = "red", 
-#      main = "Property Damage Per Storm Event",
-#      xlab = "Property Damage ($)",
-#      ylab = "Frequency"
-# )
-# hist(
-#   weatherData.orig$CROPDMG, col = "red", 
-#      main = "Crop Damage Per Storm Event",
-#      xlab = "Crop Damage ($)",
-#      ylab = "Frequency"
-# )
-# 
-# # plot4 - here placed Row 1, Column 2 
-# plot(
-#   x = weatherData.orig$BGN_DATE, 
-#   y = weatherData.orig$FATALITIES, 
-#   type = "l",
-#   main ="Fatalities Per Storm Event Over Time", 
-#   xlab = "Day", 
-#   ylab = "Fatalities (#)"
-# )
-# 
-# # plot4 - here placed Row 1, Column 2 
-# plot(
-#   x = weatherData.orig$BGN_DATE, 
-#   y = weatherData.orig$INJURIES, 
-#   type = "l",
-#   main ="Injuries Per Storm Event Over Time", 
-#   xlab = "Day", 
-#   ylab = "Injuries (#)"
-# )
-# 
-# 
-# # plot4 - here placed Row 1, Column 2 
-# plot(
-#   x = weatherData.orig$BGN_DATE, 
-#   y = weatherData.orig$PROPDMG, 
-#   type = "l",
-#   main ="Property Damage Per Storm Event Over Time", 
-#   xlab = "Day", 
-#   ylab = "Property Damage ($)"
-# )
-# 
-# 
-# 
-# # plot4 - here placed Row 1, Column 2 
-# plot(
-#   x = weatherData.orig$BGN_DATE, 
-#   y = weatherData.orig$CROPDMG, 
-#   type = "l",
-#   main ="Crop Damage Per Storm Event Over Time", 
-#   xlab = "Day", 
-#   ylab = "Crop Damage ($)"
-# )
 
 library(dplyr)
-# 
-# weatherData.orig <- cbind(weatherData.orig, PROPDMGACT = weatherData.orig$PROPDMG * if(weatherData.orig$PROPDMGEXP == "B") {1000 * 1000 * 1000} else if(weatherData.orig$PROPDMGEXP == "M") {1000 * 1000} else if(weatherData.orig$PROPDMGEXP == "K") {1000} else {1})
-
 
 # filter for "B" and get subset 
 weatherData.PROP.B <- weatherData.orig %>% 
@@ -281,17 +209,14 @@ weatherData.EVTYPE <- weatherData.ALL %>%
 head(weatherData.EVTYPE)
 summary(weatherData.EVTYPE)
 
-
 ```
 
 ## Results:  
 
-Above, I did a tremendous amount of preprocessing as already documented.  Here, the results are presented.  Also to note, I interpreted "figure" as being a "plot", else I would have commented out more of my Exploratory Data Analysis.  
+Above, I did a tremendous amount of preprocessing as already documented.  Here, the results are presented.  Also to note, I interpreted "figure" as being a "plot" (in the question also, it implies figure is synonymous with plot(s), not data tables), else I would have commented out more of my Exploratory Data Analysis.  
 
 First, I look at the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  
 
-...
-
 ```{r, echo=TRUE}
 ## 3 figures - can use multi-panel plots 
 
@@ -319,125 +244,54 @@ weatherData.EVTYPE.BySumINJURIES <- weatherData.EVTYPE %>%
     arrange(desc(sumINJURIES)) 
 head(weatherData.EVTYPE.BySumINJURIES)
 
-
 ```
 
-From the above, in terms of Property Damage, the biggest impact storm types (in descending order) are:  Tornado, Winter Storm, and River Flood.  Similarly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  River Flood, Ice Storm, and Flood.  Further, in terms of Fatalities, the biggest impact storm types (in descending order) are:  Tornado, Heat, and Thunderstorm Wind.  Lastly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  Tornado, Thunderstorm Wind, Ice Storm.  As mentioned earlier, the answer to what is the most harmful to ecoomic health or public health depends on which measure you choose.   
+From the above, in terms of Property Damage, the biggest impact storm types (in descending order) are:  Flood, Hurricane / Typhoon, and Tornado.  Similarly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  Drought, Flood, and River Flood.  Further, in terms of Fatalities, the biggest impact storm types (in descending order) are:  Tornado, Excessive Heat, and Flash Flood.  Lastly, in terms of Injuries, the biggest impact storm types (in descending order) are:  Tornado, Thunderstorm Wind, and Flood.  As mentioned earlier, the answer to what is the most harmful to Economic Health or Public Health depends on which measure you choose.   
 
 Next, looking at the data graphically the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  
 
-
 ```{r, echo=TRUE}
 ## 3 figures - can use multi-panel plots 
 
-# sort by sumPROPDMGACT 
-weatherData.EVTYPE.BySumPROPDMGACT <- weatherData.EVTYPE %>%
-    select(EVTYPE, sumPROPDMGACT) %>% 
-    arrange(desc(sumPROPDMGACT)) 
-head(weatherData.EVTYPE.BySumPROPDMGACT)
+# Top5 Unique values by Impact Measure 
+Top5.BySumPROPDMGACT = head(weatherData.EVTYPE.BySumPROPDMGACT, 5)
+Top5.BySumCROPDMGACT = head(weatherData.EVTYPE.BySumCROPDMGACT, 5)
+Top5.BySumFATALITIES = head(weatherData.EVTYPE.BySumFATALITIES, 5)
+Top5.BySumINJURIES = head(weatherData.EVTYPE.BySumINJURIES, 5)
 
-# sort by sumCROPDMGACT 
-weatherData.EVTYPE.BySumCROPDMGACT <- weatherData.EVTYPE %>%
-    select(EVTYPE, sumCROPDMGACT) %>% 
-    arrange(desc(sumCROPDMGACT)) 
-head(weatherData.EVTYPE.BySumCROPDMGACT)
-
-# sort by sumFATALITIES 
-weatherData.EVTYPE.BySumFATALITIES <- weatherData.EVTYPE %>%
-    select(EVTYPE, sumFATALITIES) %>% 
-    arrange(desc(sumFATALITIES)) 
-head(weatherData.EVTYPE.BySumFATALITIES)
-
-# sort by sumINJURIES 
-weatherData.EVTYPE.BySumINJURIES <- weatherData.EVTYPE %>%
-    select(EVTYPE, sumINJURIES) %>% 
-    arrange(desc(sumINJURIES)) 
-head(weatherData.EVTYPE.BySumINJURIES)
-
-#par(mfrow = c(2,2))
+# Plot Only Top 10 
 par(mfcol = c(2,2), mar = c(4,4,2,1))
 
-# plot4 - here placed Row 1, Column 2 
-# barplot(head(weatherData.EVTYPE.BySumPROPDMGACT$sumPROPDMGACT))
-# barplot(head(weatherData.EVTYPE.BySumPROPDMGACT))
-# 
-# require(ggplot2)
-# # plot it 
-# ggplot(weatherData.EVTYPE.BySumPROPDMGACT)
-# ggplot(weatherData.EVTYPE.BySumPROPDMGACT, geom_bar(position="dodge") 
-# 
-# qplot(
-#     x = EVTYPE, 
-#     y = sumPROPDMGACT, 
-#     data = weatherData.EVTYPE.BySumPROPDMGACT, 
-#     geom = "bar"
-#     ) 
-# 
+barplot(height = Top5.BySumPROPDMGACT$sumPROPDMGACT, 
+  names.arg = Top5.BySumPROPDMGACT$EVTYPE, 
+  main="Economic - Property Damage By Event Type", 
+  xlab="Event Type",
+  ylab="Economic - Property Damage ($)"
+  ) 
+  
+barplot(height = Top5.BySumCROPDMGACT$sumCROPDMGACT, 
+  names.arg = Top5.BySumCROPDMGACT$EVTYPE, 
+  main="Economic - Crop Damage By Event Type", 
+  xlab="Event Type",
+  ylab="Economic - Crop Damage ($)"
+  ) 
 
+barplot(height = Top5.BySumFATALITIES$sumFATALITIES, 
+  names.arg = Top5.BySumFATALITIES$EVTYPE, 
+  main="Personal - Fatalities By Event Type", 
+  xlab="Event Type",
+  ylab="Personal - Fatalities (#)"
+  ) 
 
-#   , 
-#   main = "Weather Data - Property Damage by Storm Type", 
-#   xlab = "Storm Type", 
-#   ylab = "Property Damage ($)"
-# )
-#  x = head(weatherData.EVTYPE.BySumPROPDMGACT$EVTYPE, 2), 
-#  y =  head(weatherData.EVTYPE.BySumPROPDMGACT$sumPROPDMGACT, 2), 
-
-
-# plot4 - here placed Row 1, Column 2 
-plot(
-  x = head(weatherData.EVTYPE.BySumPROPDMGACT$EVTYPE), 
-  y =  head(weatherData.EVTYPE.BySumPROPDMGACT$sumPROPDMGACT), 
-  type = "c",
-   main = "Weather Data - Property Damage by Storm Type", 
-   xlab = "Storm Type", 
-   ylab = "Property Damage ($)"
-)
-
-# plot4 - here placed Row 1, Column 2 
-plot(
-  x = head(weatherData.EVTYPE.BySumCROPDMGACT$EVTYPE), 
-  y =  head(weatherData.EVTYPE.BySumCROPDMGACT$sumCROPDMGACT), 
-  type = "c",
-   main = "Weather Data - Crop Damage by Storm Type", 
-   xlab = "Storm Type", 
-   ylab = "Crop Damage ($)"
-)
-# plot4 - here placed Row 1, Column 2 
-plot(
-  x = head(weatherData.EVTYPE.BySumFATALITIES$EVTYPE), 
-  y =  head(weatherData.EVTYPE.BySumFATALITIES$sumFATALITIES), 
-  type = "c",
-   main = "Weather Data - Fatalities by Storm Type", 
-   xlab = "Storm Type", 
-   ylab = "Fatalities (#)"
-)
-# plot4 - here placed Row 1, Column 2 
-plot(
-  x = head(weatherData.EVTYPE.BySumINJURIES$EVTYPE,3), 
-  y =  head(weatherData.EVTYPE.BySumINJURIES$sumINJURIES, 3), 
-  type = "c",
-   main = "Weather Data - Injuries by Storm Type", 
-   xlab = "Storm Type", 
-   ylab = "Injuries (#)"
-)
-
-# zweatherData.EVTYPE.BySumINJURIES.FIL <- cbind(EVTYPE = head(as.character(weatherData.EVTYPE.BySumINJURIES$EVTYPE),3), sumINJURIES = head(weatherData.EVTYPE.BySumINJURIES$sumINJURIES,3)
-# )
-# zweatherData.EVTYPE.BySumINJURIES.FIL
-# plot(
-#   x = head(zweatherData.EVTYPE.BySumINJURIES.FIL["EVTYPE"],3), 
-#   y =  head(zweatherData.EVTYPE.BySumINJURIES.FIL["sumINJURIES"], 3), 
-#   type = "c",
-#    main = "Weather Data - Injuries by Storm Type", 
-#    xlab = "Storm Type", 
-#    ylab = "Injuries (#)"
-# )
-
+barplot(height = Top5.BySumINJURIES$sumINJURIES, 
+  names.arg = Top5.BySumINJURIES$EVTYPE, 
+  main="Personal - Injuries By Event Type", 
+  xlab="Event Type",
+  ylab="Personal - Injuries (#)"
+  ) 
 
 ```
 
-Above, we look graphically at the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  Again, in terms of Property Damage, the biggest impact storm types (in descending order) are:  Tornado, Winter Storm, and River Flood.  Similarly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  River Flood, Ice Storm, and Flood.  Further, in terms of Fatalities, the biggest impact storm types (in descending order) are:  Tornado, Heat, and Thunderstorm Wind.  Lastly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  Tornado, Thunderstorm Wind, Ice Storm.  As mentioned earlier, the answer to what is the most harmful to ecoomic health or public health depends on which measure you choose.   
+Above, we look graphically at the aggregate weather data sorted by PROPDMGACT, CROPDMGACT, FATALITIES, and INJURIES, each of which grouped by EVTYPE, in order to see which EVTYPE (Storm Type) has the biggest impact in each of these 4 measures.  Again, in terms of Property Damage, the biggest impact storm types (in descending order) are:  Flood, Hurricane / Typhoon, and Tornado.  Similarly, in terms of Crop Damage, the biggest impact storm types (in descending order) are:  Drought, Flood, and River Flood.  Further, in terms of Fatalities, the biggest impact storm types (in descending order) are:  Tornado, Excessive Heat, and Flash Flood.  Lastly, in terms of Injuries, the biggest impact storm types (in descending order) are:  Tornado, Thunderstorm Wind, and Flood.  As mentioned earlier, the answer to what is the most harmful to Economic Health or Public Health depends on which measure you choose.   
 
-
-In summary, I looked at the NOAA Storm Data from 1950 to 2011.  I explored the impact of storms and severe weather and assessed their impact on both the health of individuals in the population at large in addition to their impact on the economies of the areas those storms occurred.  Primarily I looked at 2 measures {property damage, crop damage} to assess economic impact and 2 measures {fatalities, injuries} to assess health impact.  An interesting outcome is that the answer varies based on which measure you choose.   
+In summary, I looked at the NOAA Storm Data from 1950 to 2011.  I explored the impact of storms and severe weather and assessed their impact on both the health of individuals in the population at large in addition to their impact on the economies of the areas those storms occurred.  Primarily I looked at 2 measures {property damage, crop damage} to assess economic impact and 2 measures {fatalities, injuries} to assess health impact.  An interesting outcome is that the answer varies based on which measure you choose, with Flood, Drought, or Tornado being some of the top events, depending on the measure of damage / impact.  
